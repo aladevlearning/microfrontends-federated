@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
-import { dynamicImport } from '../../mfe-utils/importUtils.js';
+import { dynamicImport } from './index.js';
 
 const AccountsApp = React.lazy(
-  () => dynamicImport('mfeAccounts/App')
+  () => {
+    return dynamicImport('mfeAccounts/App');
+  }
 );
 
 const PaymentsApp = React.lazy(
@@ -10,7 +12,6 @@ const PaymentsApp = React.lazy(
     return dynamicImport('mfePayments/App');
   }
 );
-
 
 function App() {
 

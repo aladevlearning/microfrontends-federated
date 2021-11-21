@@ -1,6 +1,6 @@
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
-const { mfeShell } = require("../mfe-utils/module.config");
+const { mfeShell } = require("mfe-core/module.config.js");
 
 module.exports = merge(common, {
     mode: 'development',
