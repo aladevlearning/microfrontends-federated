@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { dynamicImport } from './index.js';
+import { dynamicImport } from 'mfe-core/devtools/loader.js';
 
 const AccountsApp = React.lazy(
   () => {
