@@ -1,0 +1,9 @@
+/mfe-accounts/node_modules/
+/mfe-payments/node_modules/
+/mfe-shell/node_modules/
+/.idea/codeStyles
+/.idea/dbnavigator.xml
+/.idea/microfrontends-federation.iml
+/.idea/modules.xml
+/.vscode/settings.json
+/.idea/vcs.xml
