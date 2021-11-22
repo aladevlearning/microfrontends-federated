@@ -12,8 +12,14 @@ module.exports = {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
     },
+    resolve: {
+        alias: {
+            src: path.resolve(__dirname, 'src/')
+        }
+    },
     module: {
         rules: [
+            { test: /\.css$/, use: 'css-loader' },
             {
                 test: /\.m?js$/,
                 exclude: /node_modules/,

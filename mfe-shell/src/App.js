@@ -1,30 +1,26 @@
-import { Suspense } from 'react';
-import { dynamicImport } from 'mfe-core/devtools/loader.js';
+import { ThemeProvider } from '@material-ui/core';
+//import 'react-perfect-scrollbar/dist/css/styles.css';
+import { useRoutes } from 'react-router-dom';
+import GlobalStyles from 'src/components/GlobalStyles';
+import routes from 'src/routes';
+import theme from 'src/theme';
+import './App.css';
 
-const AccountsApp = React.lazy(
-  () => {
-    return dynamicImport('mfeAccounts/App');
-  }
-);
 
-const PaymentsApp = React.lazy(
-  () => {
-    return dynamicImport('mfePayments/App');
-  }
-);
 
 function App() {
+
+  const routing = useRoutes(routes);
 
   return (
     <div className="App">
 
-      <hr />
-      <Suspense fallback='Loading Button'>
-        <AccountsApp />
-      </Suspense>
-      <Suspense fallback='Loading Button'>
-        <PaymentsApp />
-      </Suspense>
+      <div>
+        <ThemeProvider theme={theme}>
+          <GlobalStyles />
+          {routing}
+        </ThemeProvider>
+      </div>
     </div>
   );
 }
