@@ -1,11 +1,11 @@
-import Button from './components/Button';
+import accountsImage from './images/accounts.jpg';
 
 
 function App() {
 
   return (
     <div className="App">
-      <Button />
+      <img src={accountsImage} height="540px" />
     </div>
   );
 }

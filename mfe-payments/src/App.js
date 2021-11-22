@@ -1,11 +1,11 @@
 import Button from './components/Button';
-
+import paymentsImage from './images/payments.jpg';
 
 function App() {
 
   return (
     <div className="App">
-      <Button />
+      <img src={paymentsImage} />
     </div>
   );
 }

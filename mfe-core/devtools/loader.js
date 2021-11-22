@@ -20,13 +20,11 @@ export async function dynamicImport(path) {
 
         element.onload = () => {
             element.parentElement.removeChild(element);
-            debugger;
             resolve();
         };
 
         element.onerror = (err) => {
             element.parentElement.removeChild(element);
-            debugger;
             reject(err);
         };
 

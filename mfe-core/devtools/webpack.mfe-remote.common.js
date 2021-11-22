@@ -24,7 +24,11 @@ module.exports = (mfeName, deps) => {
                         },
                     },
                 },
-            ],
+                {
+                    test: /\.(png|jpg|jpeg|gif)$/i,
+                    type: 'asset/resource'
+                }
+            ]
         },
         plugins: [
             new HtmlWebpackPlugin({
