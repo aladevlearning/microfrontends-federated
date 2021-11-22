@@ -7,7 +7,7 @@ module.exports = (mfeName, deps) => {
     return {
         entry: './src/index',
         output: {
-            publicPath: "auto",
+            publicPath: "/",
             filename: '[name].bundle.js',
             path: path.resolve(__dirname, 'dist'),
         },

@@ -8,6 +8,7 @@ module.exports = merge(common, {
     devServer: {
         static: './dist',
         port: mfePayments.port,
+        historyApiFallback: true
     },
     devtool: 'source-map',
 });
