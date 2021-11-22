@@ -7,8 +7,7 @@ module.exports = merge(common, {
     devtool: 'inline-source-map',
     devServer: {
         static: './dist',
-        port: mfeAccounts.port,
-        historyApiFallback: true
+        port: mfeAccounts.port
     },
     devtool: 'source-map',
 });

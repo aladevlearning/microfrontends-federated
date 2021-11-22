@@ -19,7 +19,7 @@ const PaymentsApp = lazy(
 
 const routes = [
     {
-        path: 'app',
+        path: '/',
         element: <DashboardLayout />,
         children: [
             { path: 'accounts', element: <Suspense fallback='Loading Button'><AccountsApp /></Suspense> },

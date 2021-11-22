@@ -1,5 +1,4 @@
 import { ThemeProvider } from '@material-ui/core';
-//import 'react-perfect-scrollbar/dist/css/styles.css';
 import { useRoutes } from 'react-router-dom';
 import GlobalStyles from 'src/components/GlobalStyles';
 import routes from 'src/routes';

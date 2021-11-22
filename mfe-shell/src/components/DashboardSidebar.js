@@ -20,12 +20,12 @@ const user = {
 
 const items = [
   {
-    href: '/app/accounts',
+    href: '/accounts',
     icon: UsersIcon,
     title: 'Accounts'
   },
   {
-    href: '/app/payments',
+    href: '/payments',
     icon: PaymentsInfo,
     title: 'Payments'
   }
