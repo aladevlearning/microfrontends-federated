@@ -13,6 +13,9 @@
   }
 }
 
+.container {
+  margin-top: 3rem;
+}
 .App-header {
   background-color: #282c34;
   min-height: 10vh;

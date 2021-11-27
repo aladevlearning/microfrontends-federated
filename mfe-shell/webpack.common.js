@@ -19,7 +19,6 @@ module.exports = {
     },
     module: {
         rules: [
-            { test: /\.css$/, use: 'css-loader' },
             {
                 test: /\.m?js$/,
                 exclude: /node_modules/,
@@ -30,6 +29,10 @@ module.exports = {
                         plugins: ['@babel/plugin-transform-runtime'],
                     },
                 },
+            },
+            {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
             },
         ],
     },

@@ -17,7 +17,10 @@ function App() {
       <div>
         <ThemeProvider theme={theme}>
           <GlobalStyles />
-          {routing}
+          <div className="container">
+            {routing}
+          </div>
+
         </ThemeProvider>
       </div>
     </div>
