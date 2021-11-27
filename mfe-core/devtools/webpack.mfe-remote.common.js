@@ -27,7 +27,11 @@ module.exports = (mfeName, deps) => {
                 {
                     test: /\.(png|jpg|jpeg|gif)$/i,
                     type: 'asset/resource'
-                }
+                },
+                {
+                    test: /\.css$/i,
+                    use: ["style-loader", "css-loader"],
+                },
             ]
         },
         plugins: [

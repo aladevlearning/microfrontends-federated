@@ -1,4 +1,4 @@
-import Button from './components/Button';
+import './App.css';
 import paymentsImage from './images/payments.jpg';
 
 function App() {
