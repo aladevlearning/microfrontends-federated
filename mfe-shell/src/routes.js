@@ -4,7 +4,7 @@ import DashboardLayout from 'src/components/DashboardLayout';
 import MainLayout from 'src/components/MainLayout';
 import Dashboard from 'src/pages/Dashboard';
 import NotFound from 'src/pages/NotFound';
-import { dynamicImport } from 'mfe-core/devtools/loader.js'
+import { dynamicImport } from '@aladevlearning/core/devtools/loader.js'
 const AccountsApp = lazy(
     () => {
         return dynamicImport('mfeAccounts/App');

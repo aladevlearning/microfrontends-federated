@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const path = require('path');
-const { mfeShell } = require("mfe-core/module.config.js");
+const { mfeShell } = require("@aladevlearning/core/module.config.js");
 
 
 module.exports = {

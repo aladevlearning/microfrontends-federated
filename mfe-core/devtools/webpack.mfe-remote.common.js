@@ -3,13 +3,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const path = require('path');
 
-module.exports = (mfeName, deps) => {
+module.exports = (mfeName, path, deps) => {
     return {
         entry: './src/index',
         output: {
             publicPath: "auto",
             filename: '[name].bundle.js',
-            path: path.resolve(__dirname, 'dist'),
+            path,
         },
         module: {
             rules: [
@@ -45,10 +45,7 @@ module.exports = (mfeName, deps) => {
                 {
                     name: mfeName,
                     filename: 'remoteEntry.js',
-                    exposes: {
-                        './Header': './src/components/Header',
-                        './Footer': './src/components/Footer',
-                    },
+
                     shared: {
                         react: {
                             singleton: true,

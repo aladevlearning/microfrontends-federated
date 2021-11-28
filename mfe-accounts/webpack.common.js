@@ -1,6 +1,12 @@
-const mfeWebpackConfiguration = require('mfe-core/devtools/webpack.mfe-remote.common.js');
+const mfeWebpackConfiguration = require('@aladevlearning/core/devtools/webpack.mfe-remote.common.js');
 
-const { mfeAccounts } = require("mfe-core/module.config.js");
+const { mfeAccounts } = require("@aladevlearning/core/module.config.js");
 const deps = require("./package.json").dependencies;
 
-module.exports = mfeWebpackConfiguration(mfeAccounts.name, deps);
+const path = require('path');
+
+module.exports = mfeWebpackConfiguration(
+    mfeAccounts.name,
+    path.resolve(__dirname, 'dist'),
+    deps
+);

@@ -1,6 +1,6 @@
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
-const { mfePayments } = require("mfe-core/module.config.js");
+const { mfePayments } = require("@aladevlearning/core/module.config.js");
 
 module.exports = merge(common, {
     mode: 'development',
