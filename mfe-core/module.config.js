@@ -11,6 +11,7 @@ const mfeShell = {
 const mfePayments = {
     fileName: moduleFileName,
     name: "mfePayments",
+    path: "/payments/",
     port: 8081,
     get url() {
         return `http://localhost:${this.port}`;
@@ -26,6 +27,7 @@ const mfePayments = {
 const mfeAccounts = {
     fileName: moduleFileName,
     name: "mfeAccounts",
+    path: "/accounts/",
     port: 8082,
     get url() {
         return `http://localhost:${this.port}`;

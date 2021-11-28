@@ -5,7 +5,7 @@ const deps = require("./package.json").dependencies;
 const path = require('path');
 
 module.exports = mfeWebpackConfiguration(
-    mfePayments.name,
+    mfePayments,
     path.resolve(__dirname, 'dist'),
     deps
 );

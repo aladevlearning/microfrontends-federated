@@ -11,7 +11,6 @@ const AccountsApp = lazy(
     }
 );
 
-import { styled } from '@material-ui/core';
 const PaymentsApp = lazy(
     () => {
         return dynamicImport('mfePayments/App');

@@ -1,9 +1,8 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
-const path = require('path');
 
-module.exports = (mfeName, path, deps) => {
+module.exports = (mfeConfig, path, deps) => {
     return {
         entry: './src/index',
         output: {
@@ -43,7 +42,7 @@ module.exports = (mfeName, path, deps) => {
             }),
             new ModuleFederationPlugin(
                 {
-                    name: mfeName,
+                    name: mfeConfig.name,
                     filename: 'remoteEntry.js',
 
                     shared: {

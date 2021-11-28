@@ -6,7 +6,7 @@ const deps = require("./package.json").dependencies;
 const path = require('path');
 
 module.exports = mfeWebpackConfiguration(
-    mfeAccounts.name,
+    mfeAccounts,
     path.resolve(__dirname, 'dist'),
     deps
 );
