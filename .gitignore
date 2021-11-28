@@ -11,3 +11,6 @@
 
 /mfe-core/node_modules/
 /mfe-core/.local-pack/
+/mfe-payments/dist/
+/mfe-accounts/dist/
+/mfe-shell/dist/
