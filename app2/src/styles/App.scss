@@ -1,0 +1,23 @@
+.hello {
+    background-color: aquamarine;
+}
+
+
+.widget-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .description {
+        display: flex;
+    }
+
+    .img-section {
+        display: flex;
+
+        .img-contained {
+            width: 34rem;
+            height: 16rem;
+        }
+    }
+}

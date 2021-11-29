@@ -1,0 +1,28 @@
+{
+  "name": "@dynamic-system-host/app2",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "@babel/core": "7.15.5",
+    "@babel/preset-react": "7.14.5",
+    "babel-loader": "8.2.2",
+    "html-webpack-plugin": "5.3.2",
+    "sass": "^1.43.5",
+    "sass-loader": "^12.3.0",
+    "serve": "12.0.1",
+    "terser-webpack-plugin": "^5.2.5",
+    "webpack": "5.61.2",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.5.0"
+  },
+  "scripts": {
+    "start": "webpack serve --open --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
+    "serve": "serve dist -p 3002",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
+  }
+}
