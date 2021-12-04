@@ -1,0 +1,15 @@
+{
+  "name": "cicd-lambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cicdLambda.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-codepipeline": "^3.43.0",
+    "aws-sdk": "^2.1043.0"
+  }
+}

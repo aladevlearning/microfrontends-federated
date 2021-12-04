@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo Installing source NPM dependencies...
+      - echo ${CURRENT_MFE}
+      - cd $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)
+      - npm install -y npm@latest
+      - rm package-lock.json
+    pre_build:
+      commands:
+        - npm install
+  build:
+    commands:
+      - echo Build started...
+      - ng build
+artifacts:
+  files:
+    - "**/*"
+  discard-paths: yes
+  base-directory: $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)/dist
