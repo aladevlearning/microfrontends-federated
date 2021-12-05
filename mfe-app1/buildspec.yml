@@ -5,7 +5,7 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
-      - echo Installing source NPM dependencies...
+      - echo Installing source NPM dependencies..
       - echo ${CURRENT_MFE}
       - cd $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)
       - npm install -y npm@latest
