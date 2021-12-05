@@ -9,14 +9,16 @@ phases:
       - echo ${CURRENT_MFE}
       - cd $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)
       - npm install -y npm@latest
+      - npm install --global yarn
       - rm package-lock.json
+      - rm yarn-lock.json
     pre_build:
       commands:
         - npm install
   build:
     commands:
       - echo Build started...
-      - ng build
+      - yarn build
 artifacts:
   files:
     - "**/*"
