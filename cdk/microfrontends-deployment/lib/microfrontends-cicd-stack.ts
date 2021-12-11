@@ -14,8 +14,12 @@ import {
 import { Effect } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
+export interface CiCdStackProps extends StackProps {
+  bucket: s3.IBucket;
+}
+
 export class MicrofrontendsCiCdStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props?: CiCdStackProps) {
     super(scope, id, props);
 
     const name = "cdk-v2";
@@ -46,26 +50,11 @@ export class MicrofrontendsCiCdStack extends Stack {
       branch: "main",
     });
 
-    const microFrontendFederatedBucket = new s3.Bucket(
-      this,
-      `${name}-mfe-federated`,
-      {
-        bucketName: `${name}-mfe-federated`,
-        publicReadAccess: false,
-        removalPolicy: RemovalPolicy.RETAIN,
-        autoDeleteObjects: false,
-        versioned: false,
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        cors: [
-          {
-            maxAge: 3000,
-            allowedHeaders: ["Authorization", "Content-Length"],
-            allowedMethods: [s3.HttpMethods.GET],
-            allowedOrigins: ["*"],
-          },
-        ],
-      }
-    );
+    const microFrontendFederatedBucket = props?.bucket;
+
+    if (!microFrontendFederatedBucket) {
+      throw new Error("microFrontendFederatedBucket cannot be null");
+    }
 
     const cicdLambda = new lambda.Function(this, `${name}-mfe-cicd-lambda`, {
       runtime: lambda.Runtime.NODEJS_14_X,

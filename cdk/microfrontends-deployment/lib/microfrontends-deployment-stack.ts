@@ -10,30 +10,43 @@ import {
 import { Construct } from "constructs";
 
 export class MicrofrontendsDeploymentStack extends Stack {
+  public readonly microFrontendFederatedBucket: s3.IBucket;
+
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const name = "cdk-v2";
-    const microFrontendFederatedBucket = new s3.Bucket(
+
+    const existingBucket = s3.Bucket.fromBucketName(
       this,
       `${name}-mfe-federated`,
-      {
-        bucketName: `${name}-mfe-federated`,
-        publicReadAccess: false,
-        removalPolicy: RemovalPolicy.RETAIN,
-        autoDeleteObjects: false,
-        versioned: false,
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        cors: [
-          {
-            maxAge: 3000,
-            allowedHeaders: ["Authorization", "Content-Length"],
-            allowedMethods: [s3.HttpMethods.GET],
-            allowedOrigins: ["*"],
-          },
-        ],
-      }
+      `${name}-mfe-federated`
     );
+
+    if (!existingBucket) {
+      this.microFrontendFederatedBucket = new s3.Bucket(
+        this,
+        `${name}-mfe-federated`,
+        {
+          bucketName: `${name}-mfe-federated`,
+          publicReadAccess: false,
+          removalPolicy: RemovalPolicy.DESTROY,
+          autoDeleteObjects: false,
+          versioned: false,
+          encryption: s3.BucketEncryption.S3_MANAGED,
+          cors: [
+            {
+              maxAge: 3000,
+              allowedHeaders: ["Authorization", "Content-Length"],
+              allowedMethods: [s3.HttpMethods.GET],
+              allowedOrigins: ["*"],
+            },
+          ],
+        }
+      );
+    } else {
+      this.microFrontendFederatedBucket = existingBucket;
+    }
 
     const cloudFrontOAI = new cloudfront.OriginAccessIdentity(
       this,
@@ -54,7 +67,7 @@ export class MicrofrontendsDeploymentStack extends Stack {
 
     new cloudfront.Distribution(this, `${name}-mfe-cf-distro`, {
       defaultBehavior: {
-        origin: new origins.S3Origin(microFrontendFederatedBucket, {
+        origin: new origins.S3Origin(this.microFrontendFederatedBucket, {
           originAccessIdentity: cloudFrontOAI,
         }),
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,

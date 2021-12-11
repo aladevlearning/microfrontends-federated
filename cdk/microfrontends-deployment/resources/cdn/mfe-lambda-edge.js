@@ -14,7 +14,7 @@ exports.handler = async (event, context, callback) => {
 
     if (uri === '' || uri === '/' || uri.indexOf("mfe-app2") !== -1 || uri.indexOf("mfe-app3") !== -1) {
         console.log('Lambda@EdgeMFE event in');
-        const s3DomainName = 'microfrontends-federation.s3.amazonaws.com';
+        const s3DomainName = 'cdk-v2-mfe-federated.s3.amazonaws.com';
 
         /* Set S3 origin fields */
         request.origin = {
