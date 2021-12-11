@@ -17,36 +17,26 @@ export class MicrofrontendsDeploymentStack extends Stack {
 
     const name = "cdk-v2";
 
-    const existingBucket = s3.Bucket.fromBucketName(
+    this.microFrontendFederatedBucket = new s3.Bucket(
       this,
       `${name}-mfe-federated`,
-      `${name}-mfe-federated`
+      {
+        bucketName: `${name}-mfe-federated`,
+        publicReadAccess: false,
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: false,
+        versioned: false,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        cors: [
+          {
+            maxAge: 3000,
+            allowedHeaders: ["Authorization", "Content-Length"],
+            allowedMethods: [s3.HttpMethods.GET],
+            allowedOrigins: ["*"],
+          },
+        ],
+      }
     );
-
-    if (!existingBucket) {
-      this.microFrontendFederatedBucket = new s3.Bucket(
-        this,
-        `${name}-mfe-federated`,
-        {
-          bucketName: `${name}-mfe-federated`,
-          publicReadAccess: false,
-          removalPolicy: RemovalPolicy.DESTROY,
-          autoDeleteObjects: false,
-          versioned: false,
-          encryption: s3.BucketEncryption.S3_MANAGED,
-          cors: [
-            {
-              maxAge: 3000,
-              allowedHeaders: ["Authorization", "Content-Length"],
-              allowedMethods: [s3.HttpMethods.GET],
-              allowedOrigins: ["*"],
-            },
-          ],
-        }
-      );
-    } else {
-      this.microFrontendFederatedBucket = existingBucket;
-    }
 
     const cloudFrontOAI = new cloudfront.OriginAccessIdentity(
       this,
