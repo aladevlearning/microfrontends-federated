@@ -44,8 +44,8 @@ export class MicrofrontendsDeploymentStack extends Stack {
       `${name}-mfe-lambda-edge`,
       {
         runtime: lambda.Runtime.NODEJS_14_X,
-        handler: "mfeLambdaEdge.handler",
-        code: lambda.Code.fromAsset("resources/edge"),
+        handler: "mfe-lambda-edge.handler",
+        code: lambda.Code.fromAsset("resources/cdn"),
         memorySize: 1024,
         description: `Generated on: ${new Date().toISOString()}`,
       }
