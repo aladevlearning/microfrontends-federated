@@ -11,9 +11,9 @@
   },
   "workspaces": {
     "packages": [
-      "app1",
-      "app2",
-      "app3"
+      "mfe-app1",
+      "mfe-app2",
+      "mfe-app3"
     ]
   }
 }

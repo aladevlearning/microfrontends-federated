@@ -41,7 +41,7 @@ module.exports = {
     },
     plugins: [
         new ModuleFederationPlugin({
-            name: "app1",
+            name: "mfeApp1",
             shared: { react: { singleton: true }, "react-dom": { singleton: true } },
         }),
         new HtmlWebpackPlugin({

@@ -6,7 +6,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = merge(common, {
     mode: 'production',
     output: {
-        publicPath: "/app1/",
+        publicPath: "/mfe-app1/",
         clean: true,
     },
     plugins: [

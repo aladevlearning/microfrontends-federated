@@ -1,20 +1,21 @@
 import {
   aws_apigateway as apigateway,
-aws_codebuild as codebuild,
-aws_codepipeline as codepipeline,
-aws_codepipeline_actions as codepipeline_actions,
-aws_iam as iam,
-aws_lambda as lambda,
-aws_s3 as s3,
-aws_secretsmanager as secretsmanager,
-RemovalPolicy,
-Stack,
-StackProps,
+  aws_codebuild as codebuild,
+  aws_codepipeline as codepipeline,
+  aws_codepipeline_actions as codepipeline_actions,
+  aws_iam as iam,
+  aws_lambda as lambda,
+  aws_s3 as s3,
+  aws_secretsmanager as secretsmanager,
+  RemovalPolicy,
+  Stack,
+  StackProps,
 } from "aws-cdk-lib";
+import { Effect } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
 export class MicrofrontendsCiCdStack extends Stack {
-constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const name = "cdk-v2";
@@ -26,8 +27,11 @@ constructor(scope: Construct, id: string, props?: StackProps) {
     );
 
     const secretManagerPolicy = new iam.PolicyStatement({
+      effect: Effect.ALLOW,
       actions: ["secretsmanager:GetSecretValue"],
-      resources: [secret.secretArn],
+      resources: [
+        `arn:aws:secretsmanager:${props?.env?.region}:${props?.env?.account}:secret:*`,
+      ],
     });
 
     const mfes = ["mfe-app1", "mfe-app2", "mfe-app3"];
@@ -46,6 +50,7 @@ constructor(scope: Construct, id: string, props?: StackProps) {
       this,
       `${name}-mfe-federated`,
       {
+        bucketName: `${name}-mfe-federated`,
         publicReadAccess: false,
         removalPolicy: RemovalPolicy.RETAIN,
         autoDeleteObjects: false,

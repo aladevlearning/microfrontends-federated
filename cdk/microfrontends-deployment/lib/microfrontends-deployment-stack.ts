@@ -18,6 +18,7 @@ export class MicrofrontendsDeploymentStack extends Stack {
       this,
       `${name}-mfe-federated`,
       {
+        bucketName: `${name}-mfe-federated`,
         publicReadAccess: false,
         removalPolicy: RemovalPolicy.RETAIN,
         autoDeleteObjects: false,

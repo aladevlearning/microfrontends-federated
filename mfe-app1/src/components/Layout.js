@@ -9,12 +9,12 @@ function Layout({ setApp2, setApp3 }) {
     const [toggled, setToggled] = useState(false);
 
     const [system, setSystem] = React.useState(undefined);
-    const remoteEntry2 = PRODUCTION ? "https://d2k71yp5oqw0km.cloudfront.net/app2/remoteEntry.js" : "http://localhost:3002/remoteEntry.js";
-    const remoteEntry3 = PRODUCTION ? "https://d2k71yp5oqw0km.cloudfront.net/app3/remoteEntry.js" : "http://localhost:3003/remoteEntry.js";
+    const remoteEntry2 = PRODUCTION ? "https://d2sv9b9wa6i567.cloudfront.net/mfe-app2/remoteEntry.js" : "http://localhost:3002/remoteEntry.js";
+    const remoteEntry3 = PRODUCTION ? "https://d2sv9b9wa6i567.cloudfront.net/mfe-app3/remoteEntry.js" : "http://localhost:3003/remoteEntry.js";
     function setApp2() {
         setSystem({
             url: remoteEntry2,
-            scope: "app2",
+            scope: "mfeApp2",
             module: "./App",
         });
     }
@@ -22,7 +22,7 @@ function Layout({ setApp2, setApp3 }) {
     function setApp3() {
         setSystem({
             url: remoteEntry3,
-            scope: "app3",
+            scope: "mfeApp3",
             module: "./App",
         });
     }

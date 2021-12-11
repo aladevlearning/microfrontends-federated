@@ -1,2 +1,9 @@
 /node_modules/
-
+/mfe-app1/node_modules/
+/mfe-app2/node_modules/
+/mfe-app3/node_modules/
+/.idea/dbnavigator.xml
+/.idea/microfrontends-federated.iml
+/.idea/modules.xml
+/.idea/codeStyles/Project.xml
+/.idea/vcs.xml

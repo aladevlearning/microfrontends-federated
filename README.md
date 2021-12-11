@@ -9,7 +9,7 @@ This example shows how a host application loads remote micro-frontends.
 
 # Running Demo
 
-Run `yarn start`. This will build and serve both `app1`, `app2`, and `app3` on
+Run `yarn start`. This will build and serve both `mfe-app1`, `mfe-app2`, and `mfe-app3` on
 ports `3001`, `3002`, and `3003` respectively.
 
 - [localhost:3001](http://localhost:3001/) (HOST)

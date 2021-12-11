@@ -38,11 +38,11 @@ const Aside = ({ collapsed, rtl, toggled, handleToggleSidebar, handleApp2, handl
                     <MenuItem
                         onClick={handleApp2}
                     >
-                        {intl.formatMessage({ id: 'app2' })}
+                        {intl.formatMessage({ id: 'mfeApp2' })}
                     </MenuItem>
                     <MenuItem
                         onClick={handleApp3}
-                    > {intl.formatMessage({ id: 'app3' })}</MenuItem>
+                    > {intl.formatMessage({ id: 'mfeApp3' })}</MenuItem>
                 </Menu>
             </SidebarContent>
         </ProSidebar>
