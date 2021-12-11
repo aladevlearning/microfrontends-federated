@@ -16,7 +16,6 @@ const mfeCiCdStack = new MicrofrontendsCiCdStack(
   app,
   "MicrofrontendsCiCdStack",
   {
-    bucket: mfeDeploymentStack.microFrontendFederatedBucket,
     env: { account: "555485882223", region: "eu-west-1" },
   }
 );

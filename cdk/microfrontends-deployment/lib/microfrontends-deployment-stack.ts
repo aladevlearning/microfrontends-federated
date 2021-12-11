@@ -3,6 +3,8 @@ import {
   aws_cloudfront_origins as origins,
   aws_lambda as lambda,
   aws_s3 as s3,
+  CfnOutput,
+  PhysicalName,
   RemovalPolicy,
   Stack,
   StackProps,
@@ -10,18 +12,16 @@ import {
 import { Construct } from "constructs";
 
 export class MicrofrontendsDeploymentStack extends Stack {
-  public readonly microFrontendFederatedBucket: s3.IBucket;
-
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const name = "cdk-v2";
 
-    this.microFrontendFederatedBucket = new s3.Bucket(
+    const microFrontendFederatedBucket = new s3.Bucket(
       this,
-      `${name}-mfe-federated`,
+      `${name}-microfrontends-federated`,
       {
-        bucketName: `${name}-mfe-federated`,
+        bucketName: PhysicalName.GENERATE_IF_NEEDED,
         publicReadAccess: false,
         removalPolicy: RemovalPolicy.DESTROY,
         autoDeleteObjects: false,
@@ -48,8 +48,10 @@ export class MicrofrontendsDeploymentStack extends Stack {
       `${name}-mfe-lambda-edge`,
       {
         runtime: lambda.Runtime.NODEJS_14_X,
-        handler: "mfe-lambda-edge.handler",
-        code: lambda.Code.fromAsset("resources/cdn"),
+        handler: "index.handler",
+        code: new lambda.InlineCode(
+          lambdaCode(microFrontendFederatedBucket.bucketName)
+        ),
         memorySize: 1024,
         description: `Generated on: ${new Date().toISOString()}`,
       }
@@ -57,7 +59,7 @@ export class MicrofrontendsDeploymentStack extends Stack {
 
     new cloudfront.Distribution(this, `${name}-mfe-cf-distro`, {
       defaultBehavior: {
-        origin: new origins.S3Origin(this.microFrontendFederatedBucket, {
+        origin: new origins.S3Origin(microFrontendFederatedBucket, {
           originAccessIdentity: cloudFrontOAI,
         }),
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
@@ -70,5 +72,56 @@ export class MicrofrontendsDeploymentStack extends Stack {
         ],
       },
     });
+
+    new CfnOutput(this, `${name}-mfe-s3-bucket`, {
+      value: microFrontendFederatedBucket.bucketArn,
+      exportName: `${name}MfeBucketArn`,
+    });
+
+    console.log("boh", microFrontendFederatedBucket);
   }
 }
+
+const lambdaCode = (bucketName: string) => {
+  return `
+  exports.handler = async (event, context, callback) => {
+    const { request } = event.Records[0].cf;
+    let uri = request.uri;
+
+    if (uri === '' || uri === '/' || uri.indexOf("mfe-app2") !== -1 || uri.indexOf("mfe-app3") !== -1) {
+        const s3DomainName = '${bucketName}.s3.amazonaws.com';
+
+        /* Set S3 origin fields */
+        request.origin = {
+            s3: {
+                domainName: s3DomainName,
+                region: 'eu-west-1',
+                authMethod: 'none',
+                path: ''
+            }
+        };
+
+        request.headers['host'] = [{ key: 'host', value: s3DomainName }];
+    }
+
+
+    if (uri === '' || uri === '/') {
+        request.uri += '/mfe-app1/';
+    }
+
+    if (uri.endsWith('/')) {
+        request.uri += 'index.html';
+    }
+
+    // Check whether the URI is missing a file extension.
+    else if (!uri.includes('.')) {
+        request.uri += '/index.html';
+    }
+
+
+    callback(null, request);
+
+};
+
+  `;
+};

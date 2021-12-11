@@ -7,19 +7,15 @@ import {
   aws_lambda as lambda,
   aws_s3 as s3,
   aws_secretsmanager as secretsmanager,
-  RemovalPolicy,
+  Fn,
   Stack,
   StackProps,
 } from "aws-cdk-lib";
 import { Effect } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
-export interface CiCdStackProps extends StackProps {
-  bucket: s3.IBucket;
-}
-
 export class MicrofrontendsCiCdStack extends Stack {
-  constructor(scope: Construct, id: string, props?: CiCdStackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const name = "cdk-v2";
@@ -49,12 +45,17 @@ export class MicrofrontendsCiCdStack extends Stack {
       output: sourceOutput,
       branch: "main",
     });
-
-    const microFrontendFederatedBucket = props?.bucket;
-
-    if (!microFrontendFederatedBucket) {
-      throw new Error("microFrontendFederatedBucket cannot be null");
-    }
+    /*
+    const sourceAction =
+      new codepipeline_actions.CodeStarConnectionsSourceAction({
+        actionName: "GitHub_Source",
+        owner: "aladevlearning",
+        repo: "microfrontends-federated",
+        output: sourceOutput,
+        connectionArn:
+          "arn:aws:codestar-connections:eu-west-1:555485882223:connection/b8e608e3-97f6-45eb-888a-30c09980e095",
+        triggerOnPush: false,
+      });*/
 
     const cicdLambda = new lambda.Function(this, `${name}-mfe-cicd-lambda`, {
       runtime: lambda.Runtime.NODEJS_14_X,
@@ -68,6 +69,12 @@ export class MicrofrontendsCiCdStack extends Stack {
       new iam.Policy(this, `${name}-get-secret-policy`, {
         statements: [secretManagerPolicy],
       })
+    );
+
+    const bucket = s3.Bucket.fromBucketArn(
+      this,
+      `${name}-microfrontends-federated`,
+      Fn.importValue(`${name}MfeBucketArn`)
     );
 
     mfes.forEach((mfe) => {
@@ -101,7 +108,7 @@ export class MicrofrontendsCiCdStack extends Stack {
 
       const deployAction = new codepipeline_actions.S3DeployAction({
         actionName: "S3Deploy",
-        bucket: microFrontendFederatedBucket,
+        bucket,
         input: buildOutput,
         extract: true,
         objectKey: `${mfe}`,
