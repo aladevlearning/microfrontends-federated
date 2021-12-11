@@ -2,9 +2,9 @@
 
 This example shows how a host application loads remote micro-frontends.
 
-- `app1` is a React host application.
-- `app2` React standalone application which exposes `App` component.
-- `app3` React standalone application which exposes `App` component that requires
+- `mfe-app1` is a React host application.
+- `mfe-app2` React standalone application which exposes `App` component.
+- `mfe-app3` React standalone application which exposes `App` component that requires
 
 
 # Running Demo
