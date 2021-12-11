@@ -50,7 +50,10 @@ export class MicrofrontendsDeploymentStack extends Stack {
         runtime: lambda.Runtime.NODEJS_14_X,
         handler: "index.handler",
         code: new lambda.InlineCode(
-          lambdaCode(microFrontendFederatedBucket.bucketName)
+          lambdaCode(
+            microFrontendFederatedBucket.bucketName,
+            props?.env?.region
+          )
         ),
         memorySize: 1024,
         description: `Generated on: ${new Date().toISOString()}`,
@@ -82,14 +85,14 @@ export class MicrofrontendsDeploymentStack extends Stack {
   }
 }
 
-const lambdaCode = (bucketName: string) => {
+const lambdaCode = (bucketName: string, region: string | undefined) => {
   return `
   exports.handler = async (event, context, callback) => {
     const { request } = event.Records[0].cf;
     let uri = request.uri;
 
     if (uri === '' || uri === '/' || uri.indexOf("mfe-app2") !== -1 || uri.indexOf("mfe-app3") !== -1) {
-        const s3DomainName = '${bucketName}.s3.amazonaws.com';
+        const s3DomainName = '${bucketName}.s3.${region}.amazonaws.com';
 
         /* Set S3 origin fields */
         request.origin = {
