@@ -7,6 +7,7 @@ import './styles/App.scss';
 function App() {
   const [locale, setLocale] = useState('en');
 
+
   return (
     <>
       <IntlProvider locale={locale} messages={messages[locale]}>
