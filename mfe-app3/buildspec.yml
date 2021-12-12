@@ -9,17 +9,15 @@ phases:
       - echo ${CURRENT_MFE}
       - cd $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)
       - npm install -y npm@latest
-      - npm install --global yarn
+      - npm install -g yarn
       - rm package-lock.json
     pre_build:
       commands:
-        - npm install
+        - yarn install --non-interactive
   build:
     commands:
-      - echo Build started...
       - yarn build
 artifacts:
   files:
     - "**/*"
-  discard-paths: yes
   base-directory: $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)/dist

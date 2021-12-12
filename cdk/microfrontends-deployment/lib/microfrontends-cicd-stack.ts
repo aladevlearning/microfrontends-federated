@@ -64,36 +64,6 @@ export class MicrofrontendsCiCdStack extends Stack {
       Fn.importValue(`${name}MfeBucketArn`)
     );
 
-    // Create the build project that will invalidate the cache
-    const invalidateBuildProject = new codebuild.PipelineProject(
-      this,
-      `InvalidateProject`,
-      {
-        buildSpec: codebuild.BuildSpec.fromObject({
-          version: "0.2",
-          phases: {
-            build: {
-              commands: [
-                'aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"',
-              ],
-            },
-          },
-        }),
-        environmentVariables: {
-          CLOUDFRONT_ID: { value: distributionId },
-        },
-      }
-    );
-
-    // Add Cloudfront invalidation permissions to the project
-    const distributionArn = `arn:aws:cloudfront::${this.account}:distribution/${distributionId}`;
-    invalidateBuildProject.addToRolePolicy(
-      new iam.PolicyStatement({
-        resources: [distributionArn],
-        actions: ["cloudfront:CreateInvalidation"],
-      })
-    );
-
     mfes.forEach((mfe) => {
       const mfeCodePipeline = new codepipeline.Pipeline(
         this,
@@ -130,6 +100,38 @@ export class MicrofrontendsCiCdStack extends Stack {
         extract: true,
         objectKey: `${mfe}`,
       });
+
+      // Create the build project that will invalidate the cache
+      const invalidateBuildProject = new codebuild.PipelineProject(
+        this,
+        `${name}-${mfe}-invalidate-project`,
+        {
+          buildSpec: codebuild.BuildSpec.fromObject({
+            version: "0.2",
+            phases: {
+              build: {
+                commands: [
+                  'aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/' +
+                    mfe +
+                    '/*"',
+                ],
+              },
+            },
+          }),
+          environmentVariables: {
+            CLOUDFRONT_ID: { value: distributionId },
+          },
+        }
+      );
+
+      // Add Cloudfront invalidation permissions to the project
+      const distributionArn = `arn:aws:cloudfront::${this.account}:distribution/${distributionId}`;
+      invalidateBuildProject.addToRolePolicy(
+        new iam.PolicyStatement({
+          resources: [distributionArn],
+          actions: ["cloudfront:CreateInvalidation"],
+        })
+      );
 
       const cdnInvalidationAction = new codepipeline_actions.CodeBuildAction({
         actionName: "InvalidateCache",

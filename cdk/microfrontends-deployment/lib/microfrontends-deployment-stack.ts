@@ -24,8 +24,8 @@ export class MicrofrontendsDeploymentStack extends Stack {
         bucketName: PhysicalName.GENERATE_IF_NEEDED,
         publicReadAccess: false,
         removalPolicy: RemovalPolicy.DESTROY,
-        autoDeleteObjects: false,
-        versioned: false,
+        autoDeleteObjects: true,
+        versioned: true,
         encryption: s3.BucketEncryption.S3_MANAGED,
         cors: [
           {
