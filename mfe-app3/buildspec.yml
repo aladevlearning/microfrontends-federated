@@ -13,6 +13,7 @@ phases:
       - npm install -y npm@latest
       - npm install -g yarn
       - rm package-lock.json
+      - yarn config set ignore-engines true
       - yarn add webpack-cli --dev
     pre_build:
       commands:
