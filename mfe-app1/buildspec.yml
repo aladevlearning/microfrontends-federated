@@ -5,18 +5,21 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
-      - echo Installing source NPM dependencies..
-      - echo ${CURRENT_MFE}
+      - echo Installing dependencies..
+      - echo `pwd`
+      - echo Going to run cd
       - cd $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)
+      - echo `pwd`
       - npm install -y npm@latest
-      - npm install --global yarn
+      - npm install -g yarn
       - rm package-lock.json
-    pre_build:
+      - yarn config set ignore-engines true
+      - yarn add webpack-cli --dev
+    pre_build:<
       commands:
-        - npm install
+        - yarn install --non-interactive
   build:
     commands:
-      - echo Build started...
       - yarn build
 artifacts:
   files:
