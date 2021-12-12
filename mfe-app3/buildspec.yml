@@ -20,4 +20,3 @@ phases:
 artifacts:
   files:
     - "**/*"
-  base-directory: $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)/dist
