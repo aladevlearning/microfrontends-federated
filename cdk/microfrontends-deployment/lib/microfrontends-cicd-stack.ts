@@ -6,7 +6,6 @@ import {
   aws_iam as iam,
   aws_lambda as lambda,
   aws_s3 as s3,
-  aws_secretsmanager as secretsmanager,
   Fn,
   Stack,
   StackProps,
@@ -20,11 +19,7 @@ export class MicrofrontendsCiCdStack extends Stack {
 
     const name = "cdk-v2";
 
-    const secret = secretsmanager.Secret.fromSecretNameV2(
-      this,
-      `${name}-secret-webhook`,
-      "github/secrets"
-    );
+    const distributionId = Fn.importValue(`${name}MfeCdnDistroId`);
 
     const secretManagerPolicy = new iam.PolicyStatement({
       effect: Effect.ALLOW,
@@ -37,25 +32,17 @@ export class MicrofrontendsCiCdStack extends Stack {
     const mfes = ["mfe-app1", "mfe-app2", "mfe-app3"];
 
     const sourceOutput = new codepipeline.Artifact();
-    const sourceAction = new codepipeline_actions.GitHubSourceAction({
-      actionName: "GitHub_Source",
-      owner: "aladevlearning",
-      repo: "microfrontends-federated",
-      oauthToken: secret.secretValueFromJson("GITHUB_ACCESS_TOKEN"),
-      output: sourceOutput,
-      branch: "main",
-    });
-    /*
+
     const sourceAction =
       new codepipeline_actions.CodeStarConnectionsSourceAction({
         actionName: "GitHub_Source",
         owner: "aladevlearning",
         repo: "microfrontends-federated",
         output: sourceOutput,
-        connectionArn:
-          "arn:aws:codestar-connections:eu-west-1:555485882223:connection/b8e608e3-97f6-45eb-888a-30c09980e095",
+        connectionArn: `arn:aws:codestar-connections:${props?.env?.region}:${props?.env?.account}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
         triggerOnPush: false,
-      });*/
+        branch: "main",
+      });
 
     const cicdLambda = new lambda.Function(this, `${name}-mfe-cicd-lambda`, {
       runtime: lambda.Runtime.NODEJS_14_X,
@@ -75,6 +62,36 @@ export class MicrofrontendsCiCdStack extends Stack {
       this,
       `${name}-microfrontends-federated`,
       Fn.importValue(`${name}MfeBucketArn`)
+    );
+
+    // Create the build project that will invalidate the cache
+    const invalidateBuildProject = new codebuild.PipelineProject(
+      this,
+      `InvalidateProject`,
+      {
+        buildSpec: codebuild.BuildSpec.fromObject({
+          version: "0.2",
+          phases: {
+            build: {
+              commands: [
+                'aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"',
+              ],
+            },
+          },
+        }),
+        environmentVariables: {
+          CLOUDFRONT_ID: { value: distributionId },
+        },
+      }
+    );
+
+    // Add Cloudfront invalidation permissions to the project
+    const distributionArn = `arn:aws:cloudfront::${this.account}:distribution/${distributionId}`;
+    invalidateBuildProject.addToRolePolicy(
+      new iam.PolicyStatement({
+        resources: [distributionArn],
+        actions: ["cloudfront:CreateInvalidation"],
+      })
     );
 
     mfes.forEach((mfe) => {
@@ -114,6 +131,12 @@ export class MicrofrontendsCiCdStack extends Stack {
         objectKey: `${mfe}`,
       });
 
+      const cdnInvalidationAction = new codepipeline_actions.CodeBuildAction({
+        actionName: "InvalidateCache",
+        project: invalidateBuildProject,
+        input: buildOutput,
+      });
+
       mfeCodePipeline.addStage({
         stageName: "Source",
         actions: [sourceAction],
@@ -127,6 +150,11 @@ export class MicrofrontendsCiCdStack extends Stack {
       mfeCodePipeline.addStage({
         stageName: "Deploy",
         actions: [deployAction],
+      });
+
+      mfeCodePipeline.addStage({
+        stageName: "InvalidateCache",
+        actions: [cdnInvalidationAction],
       });
 
       const codePipelinePolicy = new iam.PolicyStatement({

@@ -60,28 +60,35 @@ export class MicrofrontendsDeploymentStack extends Stack {
       }
     );
 
-    new cloudfront.Distribution(this, `${name}-mfe-cf-distro`, {
-      defaultBehavior: {
-        origin: new origins.S3Origin(microFrontendFederatedBucket, {
-          originAccessIdentity: cloudFrontOAI,
-        }),
-        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-        edgeLambdas: [
-          {
-            functionVersion: lambdaAtEdge.currentVersion,
-            eventType: cloudfront.LambdaEdgeEventType.ORIGIN_REQUEST,
-            includeBody: true,
-          },
-        ],
-      },
-    });
+    const distribution = new cloudfront.Distribution(
+      this,
+      `${name}-mfe-cf-distro`,
+      {
+        defaultBehavior: {
+          origin: new origins.S3Origin(microFrontendFederatedBucket, {
+            originAccessIdentity: cloudFrontOAI,
+          }),
+          cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+          edgeLambdas: [
+            {
+              functionVersion: lambdaAtEdge.currentVersion,
+              eventType: cloudfront.LambdaEdgeEventType.ORIGIN_REQUEST,
+              includeBody: true,
+            },
+          ],
+        },
+      }
+    );
 
     new CfnOutput(this, `${name}-mfe-s3-bucket`, {
       value: microFrontendFederatedBucket.bucketArn,
       exportName: `${name}MfeBucketArn`,
     });
 
-    console.log("boh", microFrontendFederatedBucket);
+    new CfnOutput(this, `${name}-mfe-cdn-distro-id`, {
+      value: distribution.distributionId,
+      exportName: `${name}MfeCdnDistroId`,
+    });
   }
 }
 
