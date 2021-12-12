@@ -15,7 +15,7 @@ phases:
       - rm package-lock.json
       - yarn config set ignore-engines true
       - yarn add webpack-cli --dev
-    pre_build:<
+    pre_build:
       commands:
         - yarn install --non-interactive
   build:
