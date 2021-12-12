@@ -5,9 +5,11 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
-      - echo Installing source NPM dependencies..
-      - echo ${CURRENT_MFE}
+      - echo Installing dependencies..
+      - echo `pwd`
+      - Going to run cd
       - cd $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)
+      - echo `pwd`
       - npm install -y npm@latest
       - npm install -g yarn
       - rm package-lock.json
