@@ -7,7 +7,7 @@ phases:
     commands:
       - echo Installing dependencies..
       - echo `pwd`
-      - Going to run cd
+      - echo Going to run cd
       - cd $(echo ${CODEBUILD_INITIATOR} | sed 's/-dev//g' | sed 's/-prod//g' | cut -d'/' -f2)
       - echo `pwd`
       - npm install -y npm@latest
