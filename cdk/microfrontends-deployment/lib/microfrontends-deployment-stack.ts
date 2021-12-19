@@ -77,6 +77,7 @@ export class MicrofrontendsDeploymentStack extends Stack {
             },
           ],
         },
+        defaultRootObject: "mfe-app1/index.html", // To set '/' to the main shell app
       }
     );
 
