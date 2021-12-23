@@ -1,23 +1,12 @@
 #!/usr/bin/env node
 import { App } from "aws-cdk-lib";
-import { MicrofrontendsCiCdStack } from "../lib/microfrontends-cicd-stack";
-import { MicrofrontendsDeploymentStack } from "../lib/microfrontends-deployment-stack";
+import { MicrofrontendsStack } from "../lib/microfrontends-stack";
 
 const app = new App();
-const mfeDeploymentStack = new MicrofrontendsDeploymentStack(
+const microfrontendsStack = new MicrofrontendsStack(
   app,
-  "MicrofrontendsDeploymentStack",
+  "MicrofrontendsStack",
   {
     env: { account: "555485882223", region: "eu-west-1" },
   }
 );
-
-const mfeCiCdStack = new MicrofrontendsCiCdStack(
-  app,
-  "MicrofrontendsCiCdStack",
-  {
-    env: { account: "555485882223", region: "eu-west-1" },
-  }
-);
-
-mfeCiCdStack.addDependency(mfeDeploymentStack);

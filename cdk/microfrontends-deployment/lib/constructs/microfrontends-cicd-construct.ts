@@ -6,30 +6,28 @@ import {
   aws_iam as iam,
   aws_lambda as lambda,
   aws_s3 as s3,
-  Fn,
-  Stack,
-  StackProps,
 } from "aws-cdk-lib";
 import { Effect } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
+import { mfes, stackPrefix } from "../utils";
 
-export class MicrofrontendsCiCdStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+export interface CiCdProps {
+  bucketArn: string;
+  distributionId: string;
+  accountId: string | undefined;
+  region: string | undefined;
+}
+export class MicrofrontendsCiCdConstruct extends Construct {
+  constructor(scope: Construct, id: string, props: CiCdProps) {
+    super(scope, id);
 
-    const name = "cdk-v2";
-
-    const distributionId = Fn.importValue(`${name}MfeCdnDistroId`);
+    const { distributionId, bucketArn, accountId, region } = props;
 
     const secretManagerPolicy = new iam.PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["secretsmanager:GetSecretValue"],
-      resources: [
-        `arn:aws:secretsmanager:${props?.env?.region}:${props?.env?.account}:secret:*`,
-      ],
+      resources: [`arn:aws:secretsmanager:${region}:${accountId}:secret:*`],
     });
-
-    const mfes = ["mfe-app1", "mfe-app2", "mfe-app3"];
 
     const sourceOutput = new codepipeline.Artifact();
 
@@ -39,35 +37,39 @@ export class MicrofrontendsCiCdStack extends Stack {
         owner: "aladevlearning",
         repo: "microfrontends-federated",
         output: sourceOutput,
-        connectionArn: `arn:aws:codestar-connections:${props?.env?.region}:${props?.env?.account}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
+        connectionArn: `arn:aws:codestar-connections:${region}:${accountId}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
         triggerOnPush: false,
         branch: "main",
       });
 
-    const cicdLambda = new lambda.Function(this, `${name}-mfe-cicd-lambda`, {
-      runtime: lambda.Runtime.NODEJS_14_X,
-      handler: "cicdLambda.handler",
-      code: lambda.Code.fromAsset("resources/cicd-lambda"),
-      memorySize: 1024,
-      description: `Generated on: ${new Date().toISOString()}`,
-    });
+    const cicdLambda = new lambda.Function(
+      this,
+      `${stackPrefix}-mfe-cicd-lambda`,
+      {
+        runtime: lambda.Runtime.NODEJS_14_X,
+        handler: "cicdLambda.handler",
+        code: lambda.Code.fromAsset("resources/cicd-lambda"),
+        memorySize: 1024,
+        description: `Generated on: ${new Date().toISOString()}`,
+      }
+    );
 
     cicdLambda.role?.attachInlinePolicy(
-      new iam.Policy(this, `${name}-get-secret-policy`, {
+      new iam.Policy(this, `${stackPrefix}-get-secret-policy`, {
         statements: [secretManagerPolicy],
       })
     );
 
     const bucket = s3.Bucket.fromBucketArn(
       this,
-      `${name}-microfrontends-federated`,
-      Fn.importValue(`${name}MfeBucketArn`)
+      `${stackPrefix}-microfrontends-federated`,
+      bucketArn
     );
 
     mfes.forEach((mfe) => {
       const mfeCodePipeline = new codepipeline.Pipeline(
         this,
-        `${name}-${mfe}-code-pipeline`,
+        `${stackPrefix}-${mfe}-code-pipeline`,
         {
           pipelineName: `${mfe}`,
           crossAccountKeys: false,
@@ -76,7 +78,7 @@ export class MicrofrontendsCiCdStack extends Stack {
 
       const project = new codebuild.PipelineProject(
         this,
-        `${name}-${mfe}-pipeline-project`,
+        `${stackPrefix}-${mfe}-pipeline-project`,
         {
           buildSpec: codebuild.BuildSpec.fromSourceFilename(
             `${mfe}/buildspec.yml`
@@ -104,7 +106,7 @@ export class MicrofrontendsCiCdStack extends Stack {
       // Create the build project that will invalidate the cache
       const invalidateBuildProject = new codebuild.PipelineProject(
         this,
-        `${name}-${mfe}-invalidate-project`,
+        `${stackPrefix}-${mfe}-invalidate-project`,
         {
           buildSpec: codebuild.BuildSpec.fromObject({
             version: "0.2",
@@ -125,7 +127,7 @@ export class MicrofrontendsCiCdStack extends Stack {
       );
 
       // Add Cloudfront invalidation permissions to the project
-      const distributionArn = `arn:aws:cloudfront::${this.account}:distribution/${distributionId}`;
+      const distributionArn = `arn:aws:cloudfront::${accountId}:distribution/${distributionId}`;
       invalidateBuildProject.addToRolePolicy(
         new iam.PolicyStatement({
           resources: [distributionArn],
@@ -165,15 +167,19 @@ export class MicrofrontendsCiCdStack extends Stack {
       });
 
       cicdLambda.role?.attachInlinePolicy(
-        new iam.Policy(this, `${name}-${mfe}-start-code-pipeline-policy`, {
-          statements: [codePipelinePolicy],
-        })
+        new iam.Policy(
+          this,
+          `${stackPrefix}-${mfe}-start-code-pipeline-policy`,
+          {
+            statements: [codePipelinePolicy],
+          }
+        )
       );
     });
 
     const webHookApiGateway = new apigateway.LambdaRestApi(
       this,
-      `${name}-cicd-api-gateway`,
+      `${stackPrefix}-cicd-api-gateway`,
       {
         handler: cicdLambda,
         proxy: false,
