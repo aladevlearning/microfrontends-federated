@@ -1,6 +1,5 @@
 const AWS = require("aws-sdk");
 const crypto = require('crypto');
-const codePipeline = new AWS.CodePipeline()
 const { CodePipelineClient, StartPipelineExecutionCommand } = require("@aws-sdk/client-codepipeline");
 
 const region = "eu-west-1";
