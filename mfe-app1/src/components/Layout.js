@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Aside from './Aside';
 import Main from './Main';
 
+const distributionId = "https://d5i5w3ype9pfz.cloudfront.net";
+
 function Layout({ setApp2, setApp3 }) {
 
     const [rtl, setRtl] = useState(false);
@@ -9,8 +11,8 @@ function Layout({ setApp2, setApp3 }) {
     const [toggled, setToggled] = useState(false);
 
     const [system, setSystem] = React.useState(undefined);
-    const remoteEntry2 = PRODUCTION ? "https://d2sv9b9wa6i567.cloudfront.net/mfe-app2/remoteEntry.js" : "http://localhost:3002/remoteEntry.js";
-    const remoteEntry3 = PRODUCTION ? "https://d2sv9b9wa6i567.cloudfront.net/mfe-app3/remoteEntry.js" : "http://localhost:3003/remoteEntry.js";
+    const remoteEntry2 = PRODUCTION ? `${distributionId}/mfe-app2/remoteEntry.js` : "http://localhost:3002/remoteEntry.js";
+    const remoteEntry3 = PRODUCTION ? `${distributionId}/mfe-app2/remoteEntry.js` : "http://localhost:3003/remoteEntry.js";
     function setApp2() {
         setSystem({
             url: remoteEntry2,
