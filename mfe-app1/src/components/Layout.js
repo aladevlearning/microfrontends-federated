@@ -12,7 +12,7 @@ function Layout({ setApp2, setApp3 }) {
 
     const [system, setSystem] = React.useState(undefined);
     const remoteEntry2 = PRODUCTION ? `${distributionId}/mfe-app2/remoteEntry.js` : "http://localhost:3002/remoteEntry.js";
-    const remoteEntry3 = PRODUCTION ? `${distributionId}/mfe-app2/remoteEntry.js` : "http://localhost:3003/remoteEntry.js";
+    const remoteEntry3 = PRODUCTION ? `${distributionId}/mfe-app3/remoteEntry.js` : "http://localhost:3003/remoteEntry.js";
     function setApp2() {
         setSystem({
             url: remoteEntry2,
