@@ -39,7 +39,8 @@ export class MicrofrontendsCiCdConstruct extends Construct {
         owner: "aladevlearning",
         repo: "microfrontends-federated",
         output: sourceOutput,
-        connectionArn: `arn:aws:codestar-connections:${env?.region}:${env?.account}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
+        connectionArn: `arn:aws:codestar-connections:${env?.region}:${env?.account}:connection/1b5d4d38-f62d-4cb3-bedc-950886888de1`,
+        //connectionArn: `arn:aws:codestar-connections:${env?.region}:${env?.account}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
         triggerOnPush: false,
         branch: "main",
       });
