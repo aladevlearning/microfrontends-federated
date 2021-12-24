@@ -17,8 +17,7 @@ export class MicrofrontendsStack extends Stack {
     new CiCd(this, `${stackPrefix}-CiCd`, {
       bucketArn: foundations.bucketArn,
       distributionId: foundations.distributionId,
-      accountId: props?.env?.account,
-      region: props?.env?.region,
+      env: props.env,
     });
   }
 }

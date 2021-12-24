@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Aside from './Aside';
 import Main from './Main';
 
-const distributionId = "https://d5i5w3ype9pfz.cloudfront.net";
+const distributionId = "https://d3estbbkosz3y8.cloudfront.net";
 
 function Layout({ setApp2, setApp3 }) {
 

@@ -9,7 +9,7 @@ import {
 } from "aws-cdk-lib";
 import { CfnWebACL } from "aws-cdk-lib/aws-wafv2";
 import { Construct } from "constructs";
-import { lambdaEdgeFn, makeWafRules, stackPrefix } from "../utils";
+import { lambdaEdgeFn, makeWafRules, mfes, stackPrefix } from "../utils";
 
 export class MicrofrontendsFoundationalConstruct extends Construct {
   public readonly bucketArn: string;
@@ -61,7 +61,6 @@ export class MicrofrontendsFoundationalConstruct extends Construct {
       }
     );
 
-    /*
     const wafConfiguration = new CfnWebACL(this, `${stackPrefix}-mfe-waf`, {
       name: `${stackPrefix}-mfe-waf`,
       scope: "CLOUDFRONT",
@@ -76,7 +75,7 @@ export class MicrofrontendsFoundationalConstruct extends Construct {
       },
       rules: makeWafRules(),
     });
-*/
+
     const distribution = new cloudfront.Distribution(
       this,
       `${stackPrefix}-mfe-cf-distro`,
@@ -94,8 +93,8 @@ export class MicrofrontendsFoundationalConstruct extends Construct {
             },
           ],
         },
-        defaultRootObject: "mfe-app1/index.html", // To set '/' to the main shell app
-        // webAclId: wafConfiguration.attrArn,
+        defaultRootObject: `${mfes[0]}/index.html`, // To set '/' to the main shell app
+        webAclId: wafConfiguration.attrArn,
       }
     );
 

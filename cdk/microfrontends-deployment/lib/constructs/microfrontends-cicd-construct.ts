@@ -6,27 +6,29 @@ import {
   aws_iam as iam,
   aws_lambda as lambda,
   aws_s3 as s3,
+  StackProps,
 } from "aws-cdk-lib";
 import { Effect } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { mfes, stackPrefix } from "../utils";
 
-export interface CiCdProps {
+export interface CiCdProps extends StackProps {
   bucketArn: string;
   distributionId: string;
-  accountId: string | undefined;
-  region: string | undefined;
 }
+
 export class MicrofrontendsCiCdConstruct extends Construct {
   constructor(scope: Construct, id: string, props: CiCdProps) {
     super(scope, id);
 
-    const { distributionId, bucketArn, accountId, region } = props;
+    const { distributionId, bucketArn, env } = props;
 
     const secretManagerPolicy = new iam.PolicyStatement({
       effect: Effect.ALLOW,
       actions: ["secretsmanager:GetSecretValue"],
-      resources: [`arn:aws:secretsmanager:${region}:${accountId}:secret:*`],
+      resources: [
+        `arn:aws:secretsmanager:${env?.region}:${env?.account}:secret:*`,
+      ],
     });
 
     const sourceOutput = new codepipeline.Artifact();
@@ -37,7 +39,7 @@ export class MicrofrontendsCiCdConstruct extends Construct {
         owner: "aladevlearning",
         repo: "microfrontends-federated",
         output: sourceOutput,
-        connectionArn: `arn:aws:codestar-connections:${region}:${accountId}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
+        connectionArn: `arn:aws:codestar-connections:${env?.region}:${env?.account}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
         triggerOnPush: false,
         branch: "main",
       });
@@ -127,7 +129,7 @@ export class MicrofrontendsCiCdConstruct extends Construct {
       );
 
       // Add Cloudfront invalidation permissions to the project
-      const distributionArn = `arn:aws:cloudfront::${accountId}:distribution/${distributionId}`;
+      const distributionArn = `arn:aws:cloudfront::${env?.account}:distribution/${distributionId}`;
       invalidateBuildProject.addToRolePolicy(
         new iam.PolicyStatement({
           resources: [distributionArn],
