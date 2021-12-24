@@ -7,6 +7,8 @@ interface ListOfRules {
   excludedRules: string[];
 }
 
+export const defaultRegion = "us-east-1";
+
 export const stackPrefix = "cdk-v2-a";
 
 export const mfes = ["mfe-app1", "mfe-app2", "mfe-app3"]; // List of mfes. Home/shell is mfe-app1
@@ -27,7 +29,7 @@ export const lambdaEdgeFn = (
           request.origin = {
               s3: {
                   domainName: s3DomainName,
-                  region: 'eu-west-1',
+                  region: '${defaultRegion}',
                   authMethod: 'none',
                   path: ''
               }

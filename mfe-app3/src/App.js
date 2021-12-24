@@ -4,7 +4,7 @@ import Widget from "./Widget";
 
 const App = () => (
   <div>
-    <h1>Second Micro-frontend :-oooooooo--)</h1>
+    <h1>Second Micro-frontend :-ooooo--)</h1>
     <Widget />
   </div>
 );
