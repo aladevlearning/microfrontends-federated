@@ -11,11 +11,13 @@ import { CfnWebACL } from "aws-cdk-lib/aws-wafv2";
 import { Construct } from "constructs";
 import { lambdaEdgeFn, makeWafRules, mfes, stackPrefix } from "../utils";
 
+export interface FoundationalOptions extends StackProps {}
+
 export class MicrofrontendsFoundationalConstruct extends Construct {
   public readonly bucketArn: string;
   public readonly distributionId: string;
 
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: FoundationalOptions) {
     super(scope, id);
 
     const microFrontendFederatedBucket = new s3.Bucket(
@@ -43,6 +45,8 @@ export class MicrofrontendsFoundationalConstruct extends Construct {
       this,
       `${stackPrefix}-mfe-oai`
     );
+
+    microFrontendFederatedBucket.grantRead(cloudFrontOAI);
 
     const lambdaAtEdge = new cloudfront.experimental.EdgeFunction(
       this,

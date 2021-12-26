@@ -1,5 +1,4 @@
 import {
-  aws_apigateway as apigateway,
   aws_codebuild as codebuild,
   aws_codepipeline as codepipeline,
   aws_codepipeline_actions as codepipeline_actions,
@@ -8,7 +7,6 @@ import {
   aws_s3 as s3,
   StackProps,
 } from "aws-cdk-lib";
-import { Effect } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { mfes, stackPrefix } from "../utils";
 
@@ -18,18 +16,12 @@ export interface CiCdProps extends StackProps {
 }
 
 export class MicrofrontendsCiCdConstruct extends Construct {
+  public readonly pipelineArns: string[] = [];
+
   constructor(scope: Construct, id: string, props: CiCdProps) {
     super(scope, id);
 
     const { distributionId, bucketArn, env } = props;
-
-    const secretManagerPolicy = new iam.PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["secretsmanager:GetSecretValue"],
-      resources: [
-        `arn:aws:secretsmanager:${env?.region}:${env?.account}:secret:*`,
-      ],
-    });
 
     const sourceOutput = new codepipeline.Artifact();
 
@@ -55,12 +47,6 @@ export class MicrofrontendsCiCdConstruct extends Construct {
         memorySize: 1024,
         description: `Generated on: ${new Date().toISOString()}`,
       }
-    );
-
-    cicdLambda.role?.attachInlinePolicy(
-      new iam.Policy(this, `${stackPrefix}-get-secret-policy`, {
-        statements: [secretManagerPolicy],
-      })
     );
 
     const bucket = s3.Bucket.fromBucketArn(
@@ -164,34 +150,7 @@ export class MicrofrontendsCiCdConstruct extends Construct {
         actions: [cdnInvalidationAction],
       });
 
-      const codePipelinePolicy = new iam.PolicyStatement({
-        actions: ["codepipeline:StartPipelineExecution"],
-        resources: [mfeCodePipeline.pipelineArn],
-      });
-
-      cicdLambda.role?.attachInlinePolicy(
-        new iam.Policy(
-          this,
-          `${stackPrefix}-${mfe}-start-code-pipeline-policy`,
-          {
-            statements: [codePipelinePolicy],
-          }
-        )
-      );
+      this.pipelineArns.push(mfeCodePipeline.pipelineArn);
     });
-
-    const webHookApiGateway = new apigateway.LambdaRestApi(
-      this,
-      `${stackPrefix}-cicd-api-gateway`,
-      {
-        handler: cicdLambda,
-        proxy: false,
-      }
-    );
-
-    webHookApiGateway.root.addMethod(
-      "POST",
-      new apigateway.LambdaIntegration(cicdLambda)
-    );
   }
 }

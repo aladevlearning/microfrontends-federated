@@ -1,23 +1,42 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { MicrofrontendsCiCdConstruct as CiCd } from "./constructs/microfrontends-cicd-construct";
-import { MicrofrontendsFoundationalConstruct as Foundations } from "./constructs/microfrontends-foundational-construct";
+import { MicrofrontendsCiCdConstruct } from "./constructs/microfrontends-cicd-construct";
+import { MicrofrontendsFoundationalConstruct } from "./constructs/microfrontends-foundational-construct";
+import { MicrofrontendsMonoRepoTriggersConstruct } from "./constructs/microfrontends-monorepo-triggers-construct";
 import { stackPrefix } from "./utils";
 
 export class MicrofrontendsStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    const foundations = new Foundations(
+    const { env } = props;
+
+    const { bucketArn, distributionId } =
+      new MicrofrontendsFoundationalConstruct(
+        this,
+        `${stackPrefix}-Foundations`,
+        {
+          env,
+        }
+      );
+
+    const { pipelineArns } = new MicrofrontendsCiCdConstruct(
       this,
-      `${stackPrefix}-Foundations`,
-      props
+      `${stackPrefix}-CiCd`,
+      {
+        bucketArn,
+        distributionId,
+        env,
+      }
     );
 
-    new CiCd(this, `${stackPrefix}-CiCd`, {
-      bucketArn: foundations.bucketArn,
-      distributionId: foundations.distributionId,
-      env: props.env,
-    });
+    new MicrofrontendsMonoRepoTriggersConstruct(
+      this,
+      `${stackPrefix}-MonoRepoTriggers`,
+      {
+        pipelineArns,
+        env,
+      }
+    );
   }
 }
