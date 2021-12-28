@@ -17,7 +17,7 @@ export const lambdaEdgeFn = (
       const { request } = event.Records[0].cf;
       let uri = request.uri;
   
-      if (uri === '' || uri === '/' || uri.indexOf("mfe-app2") !== -1 || uri.indexOf("mfe-app3") !== -1) {
+      if (uri === '' || uri === '/' || uri.indexOf("mfe-app1") !== -1 || uri.indexOf("mfe-app2") !== -1 || uri.indexOf("mfe-app3") !== -1) {
           const s3DomainName = '${bucketName}.s3.${region}.amazonaws.com';
   
           /* Set S3 origin fields */
@@ -34,10 +34,12 @@ export const lambdaEdgeFn = (
       }
   
   
+      // Mfe-app1 is the app shell
       if (uri === '' || uri === '/') {
           request.uri += '/mfe-app1/';
       }
   
+      // Normalize uri
       if (uri.endsWith('/')) {
           request.uri += 'index.html';
       }

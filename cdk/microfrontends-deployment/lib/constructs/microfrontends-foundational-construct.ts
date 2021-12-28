@@ -57,6 +57,42 @@ const buildMicroFrontendBucket = (construct: Construct): IBucket => {
   });
 };
 
+const buildCloudFrontDistribution = (
+  construct: Construct,
+  bucket: IBucket,
+  region?: string
+) => {
+  const cloudFrontOAI = buildOriginAccessIdentity(construct);
+
+  bucket.grantRead(cloudFrontOAI);
+
+  const lambdaAtEdge = buildLambdaEdge(construct, bucket.bucketName, region);
+
+  const wafConfiguration = buildWafConfiguration(construct);
+
+  return new cloudfront.Distribution(
+    construct,
+    `${stackPrefix}-mfe-cf-distro`,
+    {
+      defaultBehavior: {
+        origin: new origins.S3Origin(bucket, {
+          originAccessIdentity: cloudFrontOAI,
+        }),
+        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        edgeLambdas: [
+          {
+            functionVersion: lambdaAtEdge.currentVersion,
+            eventType: cloudfront.LambdaEdgeEventType.ORIGIN_REQUEST,
+            includeBody: true,
+          },
+        ],
+      },
+      defaultRootObject: `${mfes[0]}/index.html`, // To set '/' to the main shell app
+      webAclId: wafConfiguration.attrArn,
+    }
+  );
+};
+
 const buildOriginAccessIdentity = (
   construct: Construct
 ): IOriginAccessIdentity => {
@@ -99,40 +135,4 @@ const buildWafConfiguration = (construct: Construct): CfnWebACL => {
     },
     rules: makeWafRules(),
   });
-};
-
-const buildCloudFrontDistribution = (
-  construct: Construct,
-  bucket: IBucket,
-  region?: string
-) => {
-  const lambdaAtEdge = buildLambdaEdge(construct, bucket.bucketName, region);
-
-  const wafConfiguration = buildWafConfiguration(construct);
-
-  const cloudFrontOAI = buildOriginAccessIdentity(construct);
-
-  bucket.grantRead(cloudFrontOAI);
-
-  return new cloudfront.Distribution(
-    construct,
-    `${stackPrefix}-mfe-cf-distro`,
-    {
-      defaultBehavior: {
-        origin: new origins.S3Origin(bucket, {
-          originAccessIdentity: cloudFrontOAI,
-        }),
-        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-        edgeLambdas: [
-          {
-            functionVersion: lambdaAtEdge.currentVersion,
-            eventType: cloudfront.LambdaEdgeEventType.ORIGIN_REQUEST,
-            includeBody: true,
-          },
-        ],
-      },
-      defaultRootObject: `${mfes[0]}/index.html`, // To set '/' to the main shell app
-      webAclId: wafConfiguration.attrArn,
-    }
-  );
 };
