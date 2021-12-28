@@ -2,6 +2,7 @@ import {
   aws_apigateway as apigateway,
   aws_iam as iam,
   aws_lambda as lambda,
+  aws_secretsmanager as secretsmanager,
   StackProps,
 } from "aws-cdk-lib";
 import { Effect } from "aws-cdk-lib/aws-iam";
@@ -17,6 +18,14 @@ export class MicrofrontendsMonoRepoTriggersConstruct extends Construct {
     super(scope, id);
 
     const { env } = props;
+
+    const secret = new secretsmanager.Secret(
+      this,
+      `${stackPrefix}-mfe-secret`,
+      {
+        secretName: `${stackPrefix}-mfe-secret-github`,
+      }
+    );
 
     const secretManagerPolicy = new iam.PolicyStatement({
       effect: Effect.ALLOW,

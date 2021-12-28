@@ -36,14 +36,7 @@ export class MicrofrontendsCiCdConstruct extends Construct {
     const microFrontendBucket = getBucketFromArn(this, bucketArn);
 
     mfes.forEach((mfe) => {
-      const mfeCodePipeline = new codepipeline.Pipeline(
-        this,
-        `${stackPrefix}-${mfe}-code-pipeline`,
-        {
-          pipelineName: `${mfe}`,
-          crossAccountKeys: false,
-        }
-      );
+      const mfeCodePipeline = buildCodePipeline(this, mfe);
 
       const buildOutput = new codepipeline.Artifact();
 
@@ -98,6 +91,20 @@ const getBucketFromArn = (construct: Construct, bucketArn: string): IBucket => {
     construct,
     `${stackPrefix}-microfrontends-federated`,
     bucketArn
+  );
+};
+
+const buildCodePipeline = (
+  construct: Construct,
+  mfe: string
+): codepipeline.Pipeline => {
+  return new codepipeline.Pipeline(
+    construct,
+    `${stackPrefix}-${mfe}-code-pipeline`,
+    {
+      pipelineName: `${mfe}`,
+      crossAccountKeys: false,
+    }
   );
 };
 
