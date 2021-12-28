@@ -14,5 +14,7 @@
       "test"
     ]
   },
-  "context": {}
+  "context": {
+    "codeStarIdConnectionId": "1b5d4d38-f62d-4cb3-bedc-950886888de1"
+  }
 }

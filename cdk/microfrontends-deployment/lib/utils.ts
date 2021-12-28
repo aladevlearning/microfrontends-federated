@@ -1,4 +1,5 @@
 import { aws_wafv2 as wafv2 } from "aws-cdk-lib";
+import { defaultRegion } from "./constants";
 
 interface ListOfRules {
   name: string;
@@ -6,12 +7,6 @@ interface ListOfRules {
   overrideAction: string;
   excludedRules: string[];
 }
-
-export const defaultRegion = "us-east-1";
-
-export const stackPrefix = "cdk-v2-a";
-
-export const mfes = ["mfe-app1", "mfe-app2", "mfe-app3"]; // List of mfes. Home/shell is mfe-app1
 
 export const lambdaEdgeFn = (
   bucketName: string,
@@ -121,34 +116,6 @@ export const makeWafRules = () => {
     };
     rules.push(rule);
   });
-
-  // Allowed country list
-  var ruleGeoMatch: wafv2.CfnWebACL.RuleProperty = {
-    name: "GeoMatch",
-    priority: 0,
-    action: {
-      block: {}, // To disable, change to *count*
-    },
-    statement: {
-      notStatement: {
-        statement: {
-          geoMatchStatement: {
-            // block connection if source not in the below country list
-            countryCodes: [
-              "DK", // Denmark
-            ],
-          },
-        },
-      },
-    },
-    visibilityConfig: {
-      sampledRequestsEnabled: true,
-      cloudWatchMetricsEnabled: true,
-      metricName: "GeoMatch",
-    },
-  }; // GeoMatch
-  // Dont push for now
-  //rules.push(ruleGeoMatch);
 
   /**
    * The rate limit is the maximum number of requests from a

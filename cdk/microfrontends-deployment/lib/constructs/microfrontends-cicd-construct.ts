@@ -8,11 +8,12 @@ import {
   StackProps,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { mfes, stackPrefix } from "../utils";
+import { mfes, stackPrefix } from "../constants";
 
 export interface CiCdProps extends StackProps {
   bucketArn: string;
   distributionId: string;
+  codeStarIdConnectionId: string;
 }
 
 export class MicrofrontendsCiCdConstruct extends Construct {
@@ -21,7 +22,7 @@ export class MicrofrontendsCiCdConstruct extends Construct {
   constructor(scope: Construct, id: string, props: CiCdProps) {
     super(scope, id);
 
-    const { distributionId, bucketArn, env } = props;
+    const { distributionId, bucketArn, env, codeStarIdConnectionId } = props;
 
     const sourceOutput = new codepipeline.Artifact();
 
@@ -31,7 +32,7 @@ export class MicrofrontendsCiCdConstruct extends Construct {
         owner: "aladevlearning",
         repo: "microfrontends-federated",
         output: sourceOutput,
-        connectionArn: `arn:aws:codestar-connections:${env?.region}:${env?.account}:connection/1b5d4d38-f62d-4cb3-bedc-950886888de1`,
+        connectionArn: `arn:aws:codestar-connections:${env?.region}:${env?.account}:connection/${codeStarIdConnectionId}`,
         //connectionArn: `arn:aws:codestar-connections:${env?.region}:${env?.account}:connection/b8e608e3-97f6-45eb-888a-30c09980e095`,
         triggerOnPush: false,
         branch: "main",

@@ -6,7 +6,7 @@ import {
 } from "aws-cdk-lib";
 import { Effect } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
-import { stackPrefix } from "../utils";
+import { stackPrefix } from "../constants";
 
 export interface MonoRepoTriggersProps extends StackProps {
   pipelineArns: string[];
