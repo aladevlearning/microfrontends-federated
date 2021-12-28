@@ -3,6 +3,7 @@ import {
   aws_iam as iam,
   aws_lambda as lambda,
   aws_secretsmanager as secretsmanager,
+  Environment,
   StackProps,
 } from "aws-cdk-lib";
 import { Effect } from "aws-cdk-lib/aws-iam";
@@ -17,70 +18,98 @@ export class MicrofrontendsMonoRepoTriggersConstruct extends Construct {
   constructor(scope: Construct, id: string, props: MonoRepoTriggersProps) {
     super(scope, id);
 
-    const { env } = props;
+    const { env, pipelineArns } = props;
 
-    const secret = new secretsmanager.Secret(
-      this,
-      `${stackPrefix}-mfe-secret`,
-      {
-        secretName: `${stackPrefix}-mfe-secret-github`,
-      }
-    );
+    const { secretName } = buildSecret(this);
 
-    const secretManagerPolicy = new iam.PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["secretsmanager:GetSecretValue"],
-      resources: [
-        `arn:aws:secretsmanager:${env?.region}:${env?.account}:secret:*`,
-      ],
-    });
+    const cicdLambda = buildLambdaFn(this, pipelineArns, secretName, env);
 
-    const cicdLambda = new lambda.Function(
-      this,
-      `${stackPrefix}-mfe-cicd-lambda`,
-      {
-        runtime: lambda.Runtime.NODEJS_14_X,
-        handler: "cicdLambda.handler",
-        code: lambda.Code.fromAsset("resources/cicd-lambda"),
-        memorySize: 1024,
-        description: `Generated on: ${new Date().toISOString()}`,
-      }
-    );
-
-    cicdLambda.role?.attachInlinePolicy(
-      new iam.Policy(this, `${stackPrefix}-get-secret-policy`, {
-        statements: [secretManagerPolicy],
-      })
-    );
-
-    props.pipelineArns.forEach((pipelineArn, index) => {
-      const codePipelinePolicy = new iam.PolicyStatement({
-        actions: ["codepipeline:StartPipelineExecution"],
-        resources: [pipelineArn],
-      });
-      cicdLambda.role?.attachInlinePolicy(
-        new iam.Policy(
-          this,
-          `${stackPrefix}-${index}-start-code-pipeline-policy`,
-          {
-            statements: [codePipelinePolicy],
-          }
-        )
-      );
-    });
-
-    const webHookApiGateway = new apigateway.LambdaRestApi(
-      this,
-      `${stackPrefix}-cicd-api-gateway`,
-      {
-        handler: cicdLambda,
-        proxy: false,
-      }
-    );
-
-    webHookApiGateway.root.addMethod(
-      "POST",
-      new apigateway.LambdaIntegration(cicdLambda)
-    );
+    buildApiGateway(this, cicdLambda);
   }
 }
+
+const buildSecret = (construct: Construct): secretsmanager.Secret => {
+  return new secretsmanager.Secret(construct, `${stackPrefix}-mfe-secret`, {
+    secretName: `${stackPrefix}-mfe-secret-github`,
+  });
+};
+
+const buildLambdaFn = (
+  construct: Construct,
+  pipelineArns: string[],
+  secretName: string,
+  env?: Environment
+): lambda.Function => {
+  const secretManagerPolicy = new iam.PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ["secretsmanager:GetSecretValue"],
+    resources: [
+      `arn:aws:secretsmanager:${env?.region}:${env?.account}:secret:${secretName}-*`,
+    ],
+  });
+
+  const cicdLambda = new lambda.Function(
+    construct,
+    `${stackPrefix}-mfe-cicd-lambda`,
+    {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: "cicdLambda.handler",
+      code: lambda.Code.fromAsset("resources/cicd-lambda"),
+      memorySize: 1024,
+      description: `Generated on: ${new Date().toISOString()}`,
+    }
+  );
+
+  cicdLambda.role?.attachInlinePolicy(
+    new iam.Policy(construct, `${stackPrefix}-get-secret-policy`, {
+      statements: [secretManagerPolicy],
+    })
+  );
+
+  attachPipelineArnsToLambda(construct, pipelineArns, cicdLambda);
+
+  return cicdLambda;
+};
+
+const buildApiGateway = (
+  construct: Construct,
+  lambda: lambda.IFunction
+): apigateway.LambdaRestApi => {
+  const webHookApiGateway = new apigateway.LambdaRestApi(
+    construct,
+    `${stackPrefix}-cicd-api-gateway`,
+    {
+      handler: lambda,
+      proxy: false,
+    }
+  );
+
+  webHookApiGateway.root.addMethod(
+    "POST",
+    new apigateway.LambdaIntegration(lambda)
+  );
+
+  return webHookApiGateway;
+};
+
+const attachPipelineArnsToLambda = (
+  construct: Construct,
+  pipelineArns: string[],
+  lambda: lambda.IFunction
+) => {
+  pipelineArns.forEach((pipelineArn, index) => {
+    const codePipelinePolicy = new iam.PolicyStatement({
+      actions: ["codepipeline:StartPipelineExecution"],
+      resources: [pipelineArn],
+    });
+    lambda.role?.attachInlinePolicy(
+      new iam.Policy(
+        construct,
+        `${stackPrefix}-${index}-start-code-pipeline-policy`,
+        {
+          statements: [codePipelinePolicy],
+        }
+      )
+    );
+  });
+};

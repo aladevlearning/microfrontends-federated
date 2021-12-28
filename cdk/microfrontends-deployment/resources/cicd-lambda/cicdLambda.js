@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const { CodePipelineClient, StartPipelineExecutionCommand } = require("@aws-sdk/client-codepipeline");
 
 const region = "us-east-1";
-const secretName = `cdk-v2-a-mfe-secret-github`;
+const secretName = `cdkv2-a-mfe-secret-github`;
 
 const client = new CodePipelineClient({
     region: region
@@ -17,7 +17,7 @@ exports.handler = async (event) => {
     let secret;
     try {
         const response = await clientSecretManager.getSecretValue({ SecretId: secretName }).promise();
-        secret = response.SecretString;
+        secret = response.SecretString
     } catch (e) {
         console.log(e);
         return {
